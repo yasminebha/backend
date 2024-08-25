@@ -41,17 +41,17 @@ app.post('/api/generate-form', async (req, res) => {
     
     const chatbotMessage = response.chatHistory.find(msg => msg.role === 'CHATBOT').message;
 
-    // Extract the JSON structure from the chatbot's message
+   
     const jsonMatch = chatbotMessage.match(/```json\n([\s\S]+)\n```/);
     if (jsonMatch && jsonMatch[1]) {
       const formStructure = JSON.parse(jsonMatch[1]);
       
-      // Transform the options array to include a key-value pair
+      
       formStructure.questions.forEach((question) => {
-        if (question.type === 'multiple-choice' && Array.isArray(question.options)) {
+        if (question.type === ('multiple-choice' || 'one-choice') && Array.isArray(question.options)) {
           question.options = question.options.map(option => ({
-            key: shortid.generate(), // Generate a unique key
-            value: option // Set the value to the original option text
+            key: shortid.generate(), 
+            value: option 
           }));
         }
       });

@@ -14,33 +14,37 @@ const cohere = new CohereClient({
 
 app.post('/api/generate-form', async (req, res) => {
   try {
-    const { prompt } = req.body;
-    const response = await cohere.chat({
-      message: `
-        Please generate a complete form based on the following description: "${prompt}" 
-        in valid JSON format. Make sure the response contains the following structure:
+    const { prompt,elementQuantities } = req.body;
+    let message = `
+    Please generate a complete form based on the following description: "${prompt}" 
+    in valid JSON format. Make sure the response contains the following structure:
+    {
+      "title": "Form Title",
+      "description": "Form Description",
+      "questions": [
         {
-          "title": "Form Title",
-          "description": "Form Description",
-          "questions": [
-            {
-              "type": "multiple-choice", 
-              "label": "Your question here", 
-              "options": ["Option 1", "Option 2"]
-            },
-            {
-              "type": "short-answer", 
-              "label": "Your question here"
-            }
-            // ... more questions
-          ]
+          "type": "multiple-choice", 
+          "label": "Your question here", 
+          "options": ["Option 1", "Option 2"]
+        },
+        {
+          "type": "short-answer", 
+          "label": "Your question here"
         }
-        Ensure that all keys and values are properly formatted as JSON, and no extra text is included.
-        here are the question type that you may use : multiple-choice , one-choice , short answer , rating , email , phone, file upload,yes or no ;
-        here some explanation about the types :
-        multiple choice and one choice : have label and options 
-        short answer , emeil , phone , rating, file upload , yes or no : have only label`
-    });
+        // ... more questions
+      ]
+    }
+    Ensure that all keys and values are properly formatted as JSON, and no extra text is included.
+    Here are the question types that you may use: multiple-choice, one-choice, short answer, rating, email, phone, file upload, yes or no. 
+    Here is an explanation of the types:
+    multiple choice and one choice have label and options.
+    short answer, email, phone, rating, file upload, yes or no have only label.`;
+
+  if (elementQuantities) {
+    message += `
+    Respect the following elementQuantities when generating the questions: ${JSON.stringify(elementQuantities)}.`;
+  }
+    const response = await cohere.chat({message});
 
     console.log("AI Response: ", response);
 
